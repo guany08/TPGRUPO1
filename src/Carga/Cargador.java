@@ -6,13 +6,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Cubo {
+public class Cargador {
     private String factFile;
     private String dim1File;
     private String dim2File;
     private String dim3File;
 
-    public Cubo(Configurador config) {
+    public Cargador(Configurador config) {
         this.factFile = config.getFact();
         this.dim1File = config.getDim1();
         this.dim2File = config.getDim2();

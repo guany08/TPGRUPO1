@@ -46,4 +46,20 @@ public class Cubo {
     public List<String[]> cargarDim3() throws IOException {
         return cargarArchivoCSV(dim3File);
     }
+
+    public String getFactFile() {
+        return this.factFile;
+    }
+
+    public String getDim1File() {
+        return dim1File;
+    }
+
+    public String getDim2File() {
+        return dim2File;
+    }
+
+    public String getDim3File() {
+        return dim3File;
+    }
 }

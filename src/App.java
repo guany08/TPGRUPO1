@@ -29,5 +29,7 @@ public class App {
         for (int i = 0; i < 5; i++ ){
             System.out.println(String.join(", ", dim1Data.get(i)));
         }
+
+        System.out.println(dim1Data.get(1)[cubo.getDimLength(1)]);
     }
 }

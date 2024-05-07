@@ -18,8 +18,16 @@ public class App {
 
         // Imprimir los datos de Ventas
         System.out.println("Datos de Ventas:");
-        for (String[] row : factData) {
-            System.out.println(String.join(", ", row));
+        // for (String[] row : factData) {
+        //     System.out.println(String.join(", ", row));
+        // }
+
+        for (int i = 0; i < 5; i++ ){
+            System.out.println(String.join(", ", factData.get(i)));
+        }
+
+        for (int i = 0; i < 5; i++ ){
+            System.out.println(String.join(", ", dim1Data.get(i)));
         }
     }
 }

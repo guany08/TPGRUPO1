@@ -1,4 +1,4 @@
-,id_producto,id_punto_venta,id_fecha,cantidad,valor_unitario,valor_total,costo
+id_producto,id_punto_venta,id_fecha,cantidad,valor_unitario,valor_total,costo
 0,235,312,55,2,28.84,57.68,63.45
 1,351,312,55,2,2024.99,4049.98,3796.19
 2,348,312,55,2,2024.99,4049.98,3796.19

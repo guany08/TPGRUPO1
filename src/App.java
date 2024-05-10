@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import Carga.Configurador;
 import Carga.Cargador;
+import Carga.Celda;
 
 public class App {
     public static void main(String[] args) throws Exception {
@@ -31,5 +32,9 @@ public class App {
         }
 
         System.out.println(dim1Data.get(1)[cubo.getDimLength(1)]);
+        Celda celdita = new Celda("22");
+        System.out.println(celdita.getValor());
+        System.out.println(celdita.getValorNumerico());
+        
     }
 }

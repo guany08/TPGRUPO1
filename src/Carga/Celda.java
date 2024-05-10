@@ -1,13 +1,15 @@
 package Carga;
 
-public abstract class Celda {
+public class Celda {
     private String valor;
-    public Celda(valor){
-        this.valor = valor
+    
+    public Celda(String valor){
+        this.valor = valor;
     }
-}
-
-
-public class CeldaString extends Celda{
-
+    public String getValor(){
+        return valor;
+    }
+    public double getValorNumerico(){
+        return Double.parseDouble(valor);
+    }
 }

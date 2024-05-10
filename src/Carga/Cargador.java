@@ -19,31 +19,35 @@ public class Cargador {
         this.dim3File = config.getDim3();
     }
 
-    public List<String[]> cargarArchivoCSV(String filePath) throws IOException {
-        List<String[]> data = new ArrayList<>();
+    public List<List<Celda>> cargarArchivoCSV(String filePath) throws IOException {
+        List<List<Celda>> data = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
             while ((line = br.readLine()) != null) {
+                List<Celda> valor = new ArrayList<>();
                 String[] values = line.split(",");
-                data.add(values);
+                for (String v : values){
+                    valor.add(new Celda(v, true));
+                }   
+                data.add(valor);
             }
         }
         return data;
     }
 
-    public List<String[]> cargarFact() throws IOException {
+    public List<List<Celda>> cargarFact() throws IOException {
         return cargarArchivoCSV(factFile);
     }
 
-    public List<String[]> cargarDim1() throws IOException {
+    public List<List<Celda>> cargarDim1() throws IOException {
         return cargarArchivoCSV(dim1File);
     }
 
-    public List<String[]> cargarDim2() throws IOException {
+    public List<List<Celda>> cargarDim2() throws IOException {
         return cargarArchivoCSV(dim2File);
     }
 
-    public List<String[]> cargarDim3() throws IOException {
+    public List<List<Celda>> cargarDim3() throws IOException {
         return cargarArchivoCSV(dim3File);
     }
 

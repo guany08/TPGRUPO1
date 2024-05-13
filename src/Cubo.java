@@ -1,7 +1,8 @@
 import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
-
+import java.util.HashSet;
+import java.util.Set;
 import Carga.Cargador;
 import Carga.Celda;
 import Carga.Configurador;
@@ -42,22 +43,40 @@ public class Cubo {
     public List<List<Celda>> agregarDimensiones(List<List<Celda>> factTable) {
         List<List<Celda>> factTableConDimensiones = new ArrayList<>();
         for (List<Celda> row : factTable) {
+            // Obtener las claves de las dimensiones
             String dim1KeyValue = row.get(0).getValor(); // Suponiendo que el valor clave de la dimensión 1 está en la segunda columna
+            String dim2KeyValue = row.get(1).getValor(); // Suponiendo que el valor clave de la dimensión 2 está en la tercera columna
+            String dim3KeyValue = row.get(2).getValor(); // Suponiendo que el valor clave de la dimensión 3 está en la cuarta columna
+    
+            // Buscar las filas correspondientes en las tablas de dimensiones
             List<Celda> dim1Row = buscarEnDimension(dim1Data, dim1KeyValue);
-
-            String dim2KeyValue = row.get(0).getValor(); // Suponiendo que el valor clave de la dimensión 2 está en la tercera columna
             List<Celda> dim2Row = buscarEnDimension(dim2Data, dim2KeyValue);
-
-            String dim3KeyValue = row.get(0).getValor(); // Suponiendo que el valor clave de la dimensión 3 está en la cuarta columna
             List<Celda> dim3Row = buscarEnDimension(dim3Data, dim3KeyValue);
-
-            // Crear una nueva fila que contenga los datos de la factTable y las dimensiones
+    
+            // Crear una nueva fila que contenga los datos de la factTable y las dimensiones,
+            // omitiendo las columnas de clave de las dimensiones
             List<Celda> newRow = new ArrayList<>();
-            newRow.addAll(row); // Agregar los datos de la factTable
-            newRow.addAll(dim1Row); // Agregar los datos de la dimensión 1
-            newRow.addAll(dim2Row); // Agregar los datos de la dimensión 2
-            newRow.addAll(dim3Row); // Agregar los datos de la dimensión 3
-
+            // Agregar el primer dato de la factTable (suponiendo que es el ID)
+            if (!row.isEmpty()) {
+                newRow.add(row.get(0));
+            }
+            // Agregar los datos restantes de la factTable
+            if (row.size() > 4) {
+                newRow.addAll(row.subList(4, row.size()));
+            }
+            // Agregar los datos de la dimensión 1 (omitir la clave)
+            if (dim1Row.size() > 1) {
+                newRow.addAll(dim1Row.subList(1, dim1Row.size()));
+            }
+            // Agregar los datos de la dimensión 2 (omitir la clave)
+            if (dim2Row.size() > 1) {
+                newRow.addAll(dim2Row.subList(1, dim2Row.size()));
+            }
+            // Agregar los datos de la dimensión 3 (omitir la clave)
+            if (dim3Row.size() > 1) {
+                newRow.addAll(dim3Row.subList(1, dim3Row.size()));
+            }
+    
             // Agregar la nueva fila a la factTable con dimensiones
             factTableConDimensiones.add(newRow);
         }

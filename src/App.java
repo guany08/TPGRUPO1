@@ -10,7 +10,7 @@ import Carga.Celda;
 public class App {
     public static void main(String[] args) throws Exception {
         String filePath = System.getProperty("user.dir");
-        Configurador config = new Configurador(new String[]{filePath + "/ventas.csv", filePath +"/puntos_venta.csv",filePath + "/productos.csv",filePath + "/fechas.csv"});
+        Configurador config = new Configurador(new String[]{filePath + "/ventas.csv", filePath +"/productos.csv" , filePath + "/puntos_venta.csv" ,filePath + "/fechas.csv"});
         Cubo cubo = new Cubo(config);
         List<List<Celda>> factData = cubo.getFactData();
         List<List<Celda>> dim1Data = cubo.getDim1Data();
@@ -18,7 +18,7 @@ public class App {
         List<List<Celda>> dim3Data = cubo.getDim3Data();
 
         // Imprimir los datos de Ventas
-        System.out.println("Datos de Ventas:");
+        //System.out.println("Datos de Ventas:");
         // for (String[] row : factData) {
         //     System.out.println(String.join(", ", row));
         // }
@@ -32,18 +32,28 @@ public class App {
         }
         */
         // AHORA IMPRIME LA LISTA DE LISTAS DE CELDAS
-        System.out.println(factData.get(3).get(2).getValorNumerico());
-        System.out.println(dim1Data.get(1).get(cubo.getDimLength(1)).getValor());
-
+        //System.out.println(factData.get(3).get(2).getValorNumerico());
+    
         List<List<Celda>> completo = cubo.agregarDimensiones(factData);
+
         int cont = 0;
+        int tamaño = 0;
+        for (int i = 0; i < completo.get(0).size(); i++ ){
+            System.out.println(completo.get(2).get(i).getValor());
+        }
+
+
         for (List<Celda> row : completo) {
             cont = cont + 1;
+            tamaño = row.size();
+            /*
             for (Celda celda : row) {
                 System.out.print(celda.getValor() + " ");
             }
-
+            */
         }
+        System.out.println(cont);
+        System.out.println(tamaño);
 
     }
 }

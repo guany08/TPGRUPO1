@@ -35,6 +35,15 @@ public class App {
         System.out.println(factData.get(3).get(2).getValorNumerico());
         System.out.println(dim1Data.get(1).get(cubo.getDimLength(1)).getValor());
 
-        
+        List<List<Celda>> completo = cubo.agregarDimensiones(factData);
+        int cont = 0;
+        for (List<Celda> row : completo) {
+            cont = cont + 1;
+            for (Celda celda : row) {
+                System.out.print(celda.getValor() + " ");
+            }
+
+        }
+
     }
 }

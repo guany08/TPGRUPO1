@@ -34,9 +34,9 @@ public class Cubo {
         this.dim3Data = cargador.cargarDim3();
         dimLength[3] = dim3Data.get(0).size() - 1;
 
+        headers = factData.get(0);
         completo = agregarDimensiones(factData);
-        headers = completo.get(0);
-
+        
     }
 
      // Método para buscar una fila en una dimensión según un valor clave
@@ -51,18 +51,29 @@ public class Cubo {
 
     public List<List<Celda>> agregarDimensiones(List<List<Celda>> factTable) {
         List<List<Celda>> factTableConDimensiones = new ArrayList<>();
+        int[] dimIndexes = new int[dimKeys.length];
+        
+        for (int i = 0; i < dimKeys.length; i++) {
+            dimIndexes[i] = -1; // Initialize to -1 indicating not found
+            for (int j = 0; j < headers.size(); j++) {
+                if (headers.get(j).getValor().equals(dimKeys[i])) {
+                    dimIndexes[i] = j;
+                    break;
+                }
+            }
+        }
+
         for (List<Celda> row : factTable) {
             // Obtener las claves de las dimensiones
-            String dim1KeyValue = row.get(0).getValor(); // Suponiendo que el valor clave de la dimensión 1 está en la segunda columna
-            String dim2KeyValue = row.get(1).getValor(); // Suponiendo que el valor clave de la dimensión 2 está en la tercera columna
-            String dim3KeyValue = row.get(2).getValor(); // Suponiendo que el valor clave de la dimensión 3 está en la cuarta columna
+
+            String dim1KeyValue = row.get(dimIndexes[0]).getValor(); // Suponiendo que el valor clave de la dimensión 1 está en la segunda columna
+            String dim2KeyValue = row.get(dimIndexes[1]).getValor(); // Suponiendo que el valor clave de la dimensión 2 está en la tercera columna
+            String dim3KeyValue = row.get(dimIndexes[2]).getValor(); // Suponiendo que el valor clave de la dimensión 3 está en la cuarta columna
             
             // Buscar las filas correspondientes en las tablas de dimensiones
             List<Celda> dim1Row = buscarEnDimension(dim1Data, dim1KeyValue);
             List<Celda> dim2Row = buscarEnDimension(dim2Data, dim2KeyValue);
             List<Celda> dim3Row = buscarEnDimension(dim3Data, dim3KeyValue);
-
-            System.out.println(dim1Row.get(1).getValor());
     
             // Crear una nueva fila que contenga los datos de la factTable y las dimensiones,
             // omitiendo las columnas de clave de las dimensiones
@@ -72,7 +83,7 @@ public class Cubo {
                 newRow.add(row.get(0));
             }
             // Agregar los datos restantes de la factTable
-            if (row.size() > 4) {
+            if (row.size() > 1) {
                 newRow.addAll(row.subList(1, row.size()));
             }
             // Agregar los datos de la dimensión 1 (omitir la clave)

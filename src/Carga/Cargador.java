@@ -27,7 +27,7 @@ public class Cargador {
                 List<Celda> valor = new ArrayList<>();
                 String[] values = line.split(";");
                 for (String v : values){
-                    valor.add(new Celda(v, true));
+                    valor.add(new Celda(v, false));
                 }   
                 data.add(valor);
             }

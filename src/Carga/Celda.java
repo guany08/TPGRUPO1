@@ -14,4 +14,10 @@ public class Celda {
     public double getValorNumerico(){
         return Double.parseDouble(valor);
     }
+    public boolean isOperable() {
+        return operable;
+    }
+    public void setOperable(boolean v) {
+        this.operable = v;
+    }
 }

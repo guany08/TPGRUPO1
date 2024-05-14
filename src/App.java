@@ -10,8 +10,9 @@ import Carga.Celda;
 public class App {
     public static void main(String[] args) throws Exception {
         String filePath = System.getProperty("user.dir");
-        Configurador config = new Configurador(new String[]{filePath + "/ventas.csv", filePath +"/productos.csv" , filePath + "/puntos_venta.csv" ,filePath + "/fechas.csv"});
+        Configurador config = new Configurador(new String[]{filePath + "/ventas.csv", filePath +"/productos.csv" , filePath + "/puntos_venta.csv" ,filePath + "/fechas.csv", "id_producto", "id_punto_venta", "id_fecha"});
         Cubo cubo = new Cubo(config);
+        
         /*
         List<List<Celda>> factData = cubo.getFactData();
         List<List<Celda>> dim1Data = cubo.getDim1Data();
@@ -44,7 +45,7 @@ public class App {
         for (Celda header : headers){
             System.out.print(header.getValor() + ", ");
         }
-        System.out.print("\n");
+        System.out.print("\n\n");
         for (int i = 0; i < completo.get(0).size(); i++ ){
             System.out.print(completo.get(1).get(i).getValor() + ", ");
         }

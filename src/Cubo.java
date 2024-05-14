@@ -15,10 +15,14 @@ public class Cubo {
     private int[] dimLength = new int[4];
     private List<List<Celda>> completo;
     private List<Celda> headers = new ArrayList<>();
+    private String[] dimKeys = new String[3];
 
     public Cubo(Configurador configurador) throws IOException {
         Cargador cargador = new Cargador(configurador);
+        
         this.factData = cargador.cargarFact();
+        dimKeys = configurador.getKeys();
+
         dimLength[0] = factData.get(0).size() - 1;
 
         this.dim1Data = cargador.cargarDim1();
@@ -48,15 +52,12 @@ public class Cubo {
     public List<List<Celda>> agregarDimensiones(List<List<Celda>> factTable) {
         List<List<Celda>> factTableConDimensiones = new ArrayList<>();
         for (List<Celda> row : factTable) {
-            // Obtener las claves de las dimensiones
-            String dim1KeyValue = row.get(0).getValor(); // Suponiendo que el valor clave de la dimensión 1 está en la segunda columna
-            String dim2KeyValue = row.get(1).getValor(); // Suponiendo que el valor clave de la dimensión 2 está en la tercera columna
-            String dim3KeyValue = row.get(2).getValor(); // Suponiendo que el valor clave de la dimensión 3 está en la cuarta columna
-    
             // Buscar las filas correspondientes en las tablas de dimensiones
-            List<Celda> dim1Row = buscarEnDimension(dim1Data, dim1KeyValue);
-            List<Celda> dim2Row = buscarEnDimension(dim2Data, dim2KeyValue);
-            List<Celda> dim3Row = buscarEnDimension(dim3Data, dim3KeyValue);
+            List<Celda> dim1Row = buscarEnDimension(dim1Data, dimKeys[0]);
+            List<Celda> dim2Row = buscarEnDimension(dim2Data, dimKeys[1]);
+            List<Celda> dim3Row = buscarEnDimension(dim3Data, dimKeys[2]);
+
+            System.out.println(dim1Row.get(1).getValor());
     
             // Crear una nueva fila que contenga los datos de la factTable y las dimensiones,
             // omitiendo las columnas de clave de las dimensiones

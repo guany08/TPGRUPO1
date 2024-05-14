@@ -12,7 +12,9 @@ public class Cubo {
     private List<List<Celda>> dim1Data;
     private List<List<Celda>> dim2Data;
     private List<List<Celda>> dim3Data;
-    private int[] dimLength = new int[4]; 
+    private int[] dimLength = new int[4];
+    private List<List<Celda>> completo;
+    private List<Celda> headers = new ArrayList<>();
 
     public Cubo(Configurador configurador) throws IOException {
         Cargador cargador = new Cargador(configurador);
@@ -27,6 +29,9 @@ public class Cubo {
 
         this.dim3Data = cargador.cargarDim3();
         dimLength[3] = dim3Data.get(0).size() - 1;
+
+        completo = agregarDimensiones(factData);
+        headers = completo.get(0);
 
     }
 
@@ -62,7 +67,7 @@ public class Cubo {
             }
             // Agregar los datos restantes de la factTable
             if (row.size() > 4) {
-                newRow.addAll(row.subList(4, row.size()));
+                newRow.addAll(row.subList(1, row.size()));
             }
             // Agregar los datos de la dimensión 1 (omitir la clave)
             if (dim1Row.size() > 1) {
@@ -104,6 +109,18 @@ public class Cubo {
 
     public int getDimLength(int i) {
         return dimLength[i];
+    }
+
+    public int[] getDimLength() {
+        return dimLength;
+    }
+
+    public List<List<Celda>> getCompleto() {
+        return completo;
+    }
+
+    public List<Celda> getHeaders() {
+        return headers;
     }
 
 

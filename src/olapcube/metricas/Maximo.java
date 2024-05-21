@@ -13,7 +13,7 @@ public class Maximo extends Medida {
 
     @Override
     public double calcular(List<Double> valores) {
-        double maximo = 0;
+        double maximo = Double.MIN_VALUE;
         for (Double valor : valores) {
             if (valor >= maximo) {
                 maximo = valor;

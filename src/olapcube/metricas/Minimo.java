@@ -20,6 +20,9 @@ public class Minimo extends Medida {
             }
         }
         
+        // TODO:
+        // no valor, toString da nAn. En estructura nueva clase no valor. new no valor
+        // por ahora, MAX_VALUE todos los valores que no sean numeros.
         return minimo;
     }
 }

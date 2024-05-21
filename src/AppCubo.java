@@ -22,7 +22,7 @@ public class AppCubo {
             new ConfigDimension[] {
                 ConfigDimension.configCSV("Productos", "src/olapcube/datasets-olap/productos.csv", 0, 3, 0),
                 ConfigDimension.configCSV("Fechas", "src/olapcube/datasets-olap/fechas.csv", 0, 5, 2),
-                ConfigDimension.configCSV("POS", "src/olapcube/datasets-olap/puntos_venta.csv", 0, 4, 1)
+                ConfigDimension.configCSV("POS", "src/olapcube/datasets-olap/puntos_venta.csv", 0, 5, 1)
             }
         );
     }
@@ -41,7 +41,7 @@ public class AppCubo {
 
         // Mostrar Dimensiones POS vs Fechas (hecho: cantidad)
         proyeccion.seleccionarHecho("costo");
-        proyeccion.seleccionarMedida("count");
+        proyeccion.seleccionarMedida("maximo");
         proyeccion.print("POS", "Fechas");
     }
 }

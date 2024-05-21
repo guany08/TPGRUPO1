@@ -60,6 +60,10 @@ public class ConfigDimension {
         return columnaValor;
     }
 
+    public void setColumnaValor(Integer columnaValor) {
+        this.columnaValor = columnaValor;
+    }
+
     public int getColumnaFkHechos() {
         return columnaFkHechos;
     }

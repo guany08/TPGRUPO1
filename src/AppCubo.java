@@ -22,7 +22,7 @@ public class AppCubo {
             new ConfigDimension[] {
                 ConfigDimension.configCSV("Productos", "src/olapcube/datasets-olap/productos.csv", 0, 3, 0),
                 ConfigDimension.configCSV("Fechas", "src/olapcube/datasets-olap/fechas.csv", 0, 5, 2),
-                ConfigDimension.configCSV("POS", "src/olapcube/datasets-olap/puntos_venta.csv", 0, 5, 1)
+                ConfigDimension.configCSV("POS", "src/olapcube/datasets-olap/puntos_venta.csv", 0, 4, 1)
             }
         );
     }
@@ -43,5 +43,25 @@ public class AppCubo {
         proyeccion.seleccionarHecho("costo");
         proyeccion.seleccionarMedida("maximo");
         proyeccion.print("POS", "Fechas");
+
+        Cubo cubo2 = cubo.rollup("POS");
+        
+        // Proyecciones
+        Proyeccion proyeccion2 = cubo2.proyectar();
+        
+        proyeccion2.seleccionarHecho("costo");
+        proyeccion2.seleccionarMedida("maximo");
+        proyeccion2.print("POS", "Fechas");
+
+        
+        Cubo cubo3 = cubo2.drilldown("Fechas");
+        
+        // Proyecciones
+        Proyeccion proyeccion3 = cubo3.proyectar();
+        
+        proyeccion3.seleccionarHecho("costo");
+        proyeccion3.seleccionarMedida("maximo");
+        proyeccion3.print("POS", "Fechas");
+
     }
 }

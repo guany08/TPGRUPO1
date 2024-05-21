@@ -25,8 +25,10 @@ public class Cubo {
     private Map<String, Medida> medidas;        // Mapeo de nombres de medida al objeto de la medida
     private List<Celda> celdas;                 // Lista de celdas del cubo
     private List<String> nombresHechos;         // Nombres de los hechos (columnas con valores del dataset de hechos)
+    private ConfigCubo config;
 
-    private Cubo() {
+    private Cubo(ConfigCubo config) {
+        this.config = config;
         dimensiones = new HashMap<>();
         celdas = new ArrayList<>();
         nombresHechos = new ArrayList<>();
@@ -46,7 +48,7 @@ public class Cubo {
      * @return Cubo
      */
     public static Cubo crearFromConfig(ConfigCubo config) {
-        Cubo cubo = new Cubo();
+        Cubo cubo = new Cubo(config);
 
         // Creacion de dimensiones
         for (ConfigDimension configDimension : config.getDimensiones()) {
@@ -110,6 +112,38 @@ public class Cubo {
         // TODO: Validar que la celda tenga la misma cantidad de hechos que los hechos del cubo
         // TODO: Validar que la celda tenga la misma cantidad de valores para cada hecho
         celdas.add(celda);
+    }
+
+    public Cubo rollup(String nombreDimension) {
+        // Clonar la configuración actual
+        ConfigCubo nuevaConfig = config;
+
+        // Reducir la granularidad de la dimensión seleccionada
+        for (ConfigDimension dimensionConfig : nuevaConfig.getDimensiones()) {
+            if (dimensionConfig.getNombre().equals(nombreDimension)) {
+                dimensionConfig.setColumnaValor(dimensionConfig.getColumnaValor() + 1); // TODO: QUE NO SE PASEE
+                break;
+            }
+        }
+
+        // Crear un nuevo cubo con la configuración modificada
+        return Cubo.crearFromConfig(nuevaConfig);
+    }
+
+    public Cubo drilldown(String nombreDimension) {
+        // Clonar la configuración actual
+        ConfigCubo nuevaConfig = config;
+
+        // Reducir la granularidad de la dimensión seleccionada
+        for (ConfigDimension dimensionConfig : nuevaConfig.getDimensiones()) {
+            if (dimensionConfig.getNombre().equals(nombreDimension)) {
+                dimensionConfig.setColumnaValor(dimensionConfig.getColumnaValor() - 1); // TODO: QUE NO SE PASEE
+                break;
+            }
+        }
+
+        // Crear un nuevo cubo con la configuración modificada
+        return Cubo.crearFromConfig(nuevaConfig);
     }
 
     @Override

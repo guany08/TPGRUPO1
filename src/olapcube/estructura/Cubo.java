@@ -11,7 +11,11 @@ import olapcube.Proyeccion;
 import olapcube.configuration.ConfigCubo;
 import olapcube.configuration.ConfigDimension;
 import olapcube.metricas.Medida;
+import olapcube.metricas.Count;
 import olapcube.metricas.Suma;
+import olapcube.metricas.Media;
+import olapcube.metricas.Maximo;
+import olapcube.metricas.Minimo;
 
 /**
  * Representa un cubo OLAP.
@@ -27,9 +31,12 @@ public class Cubo {
         celdas = new ArrayList<>();
         nombresHechos = new ArrayList<>();
 
-        // TODO: Externalizar esta configuracion
         medidas = new HashMap<>();
+        medidas.put("count", new Count());
         medidas.put("suma", new Suma());
+        medidas.put("media", new Media());
+        medidas.put("maximo", new Maximo());
+        medidas.put("minimo", new Minimo());
     }
 
     /**

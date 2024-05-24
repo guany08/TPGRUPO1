@@ -1,7 +1,6 @@
 package olapcube;
 
 import java.util.Arrays;
-
 import olapcube.estructura.Celda;
 import olapcube.estructura.Cubo;
 import olapcube.estructura.Dimension;
@@ -10,12 +9,12 @@ import olapcube.estructura.Dimension;
  * Clase que representa una proyeccion de un cubo OLAP
  */
 public class Proyeccion {
-    private Cubo cubo;              // Cubo sobre el que se realiza la proyeccion
-    private int maxFilas = 10;      // Maximo de filas a mostrar
-    private int maxColumnas = 10;   // Maximo de columnas a mostrar
-    private String hecho;           // Hecho a proyectar
-    private String medida;          // Medida a proyectar
-    
+    private Cubo cubo; // Cubo sobre el que se realiza la proyeccion
+    private int maxFilas = 10; // Maximo de filas a mostrar
+    private int maxColumnas = 10; // Maximo de columnas a mostrar
+    private String hecho; // Hecho a proyectar
+    private String medida; // Medida a proyectar
+
     // Atributos para mostrar en consola
     private String formatoCelda = "%8.8s";
     private String separador = " | ";
@@ -27,8 +26,8 @@ public class Proyeccion {
      */
     public Proyeccion(Cubo cubo) {
         this.cubo = cubo;
-        this.hecho = cubo.getNombresHechos().get(0);    // Selecciona el primer hecho por defecto
-        this.medida = cubo.getMedidas().get(0);         // Selecciona la primera medida por defecto
+        this.hecho = cubo.getNombresHechos().get(0); // Selecciona el primer hecho por defecto
+        this.medida = cubo.getMedidas().get(0); // Selecciona la primera medida por defecto
     }
 
     public void seleccionarHecho(String hecho) {
@@ -47,8 +46,8 @@ public class Proyeccion {
     public void print(String nombreDimension) {
         Dimension dimension = cubo.getDimension(nombreDimension);
         System.out.println("Proyeccion de " + dimension.getNombre());
-        
-        String[] columnas = new String[] {hecho + " (" + medida + ")"};
+
+        String[] columnas = new String[] { hecho + " (" + medida + ")" };
 
         // Genera celdas de la proyeccion
         Double[][] valores = new Double[dimension.getValores().length][1];
@@ -71,8 +70,9 @@ public class Proyeccion {
     public void print(String nombreDim1, String nombreDim2) {
         Dimension dimension1 = cubo.getDimension(nombreDim1);
         Dimension dimension2 = cubo.getDimension(nombreDim2);
-        System.out.println("Proyeccion de " + dimension1.getNombre() + " vs " + dimension2.getNombre() + " - " + hecho + " (" + medida + ")");
-        
+        System.out.println("Proyeccion de " + dimension1.getNombre() + " vs " + dimension2.getNombre() + " - " + hecho
+                + " (" + medida + ")");
+
         // Genera celdas de la proyeccion
         Double[][] valores = new Double[dimension1.getValores().length][dimension2.getValores().length];
         for (int i = 0; i < dimension1.getValores().length; i++) {
@@ -91,10 +91,11 @@ public class Proyeccion {
     /**
      * Muestra una tabla en consola
      * 
-     * @param indice Labels o valores de las filas
-     * @param header Labels o valores de las columnas
+     * @param indice  Labels o valores de las filas
+     * @param header  Labels o valores de las columnas
      * @param valores Valores de la tabla
      */
+
     private void printTablaConsola(String[] indice, String[] header, Double[][] valores) {
         if (indice.length > maxFilas) {
             indice = Arrays.copyOfRange(indice, 0, maxFilas);
@@ -103,24 +104,66 @@ public class Proyeccion {
             header = Arrays.copyOfRange(header, 0, maxColumnas);
         }
 
-        // Print del header
-        System.out.printf(formatoCelda, separador);
-        for (String columna : header) {
-            System.out.printf(formatoCelda, columna);
-            System.out.print(separador);
+        // Calculate the maximum width for each column
+        int[] maxColWidths = new int[header.length + 1]; // +1 for the index column
+        maxColWidths[0] = Arrays.stream(indice).mapToInt(String::length).max().orElse(0);
+
+        for (int i = 0; i < header.length; i++) {
+            final int finalI = i;
+            int maxHeaderWidth = header[i].length();
+            int maxValueWidth = Arrays.stream(valores).mapToInt(row -> String.format("%.2f", row[finalI]).length())
+                    .max().orElse(0);
+            maxColWidths[i + 1] = Math.max(maxHeaderWidth, maxValueWidth);
+        }
+
+        // Print separator
+        System.out.print("+");
+        for (int i = 0; i <= header.length; i++) {
+            // Adjust -1 in the loop to reduce an extra dash
+            for (int j = 0; j < maxColWidths[i] + 2; j++) { // +2 for padding space around text
+                System.out.print("-");
+            }
+            System.out.print("+");
         }
         System.out.println();
-        System.out.println("---------------------------------");
 
+        // Print header row
+        System.out.print("|");
+        System.out.printf(" %-" + maxColWidths[0] + "s |", "");
+        for (int i = 0; i < header.length; i++) {
+            System.out.printf(" %-" + maxColWidths[i + 1] + "s |", header[i]);
+        }
+        System.out.println();
+
+        // Print separator
+        System.out.print("+");
+        for (int i = 0; i <= header.length; i++) {
+            for (int j = 0; j < maxColWidths[i] + 2; j++) {
+                System.out.print("-");
+            }
+            System.out.print("+");
+        }
+        System.out.println();
+
+        // Print data rows
         for (int i = 0; i < indice.length; i++) {
-            System.out.printf(formatoCelda, indice[i]);
-            System.out.print(separador);
+            System.out.print("|");
+            System.out.printf(" %-" + maxColWidths[0] + "s |", indice[i]);
             for (int j = 0; j < header.length; j++) {
-                // TODO: Formatear bien el valor de la celda
-                System.out.printf(formatoCelda, valores[i][j]);
-                System.out.print(separador);
+                System.out.printf(" %-" + maxColWidths[j + 1] + ".2f |", valores[i][j]);
             }
             System.out.println();
         }
+
+        // Print separator
+        System.out.print("+");
+        for (int i = 0; i <= header.length; i++) {
+            for (int j = 0; j < maxColWidths[i] + 2; j++) {
+                System.out.print("-");
+            }
+            System.out.print("+");
+        }
+        System.out.println('\n');
     }
+
 }

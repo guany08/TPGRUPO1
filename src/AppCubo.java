@@ -34,7 +34,34 @@ public class AppCubo {
         // Mostrar Dimensiones POS vs Fechas (hecho: cantidad)
         proyeccion.seleccionarHecho("costo");
         proyeccion.seleccionarMedida("suma");
-        proyeccion.seleccionarHecho("costo");
         proyeccion.print("POS", "Fechas");
+
+        // Prueba Roll-Up
+
+        Cubo cubo2 = cubo.rollup("POS");
+
+        // Proyecciones
+        Proyeccion proyeccion2 = cubo2.proyectar();
+
+        // Mostrar Dimension POS (hecho: default)
+        proyeccion2.print("POS");
+
+        // Mostrar Dimensiones POS vs Fechas (hecho: cantidad)
+        proyeccion2.seleccionarHecho("costo");
+        proyeccion2.seleccionarMedida("suma");
+        proyeccion2.print("POS", "Fechas");
+
+        // Prubea Drill-Down
+
+        Cubo cubo3 = cubo2.drilldown("Fechas");
+
+        // Proyecciones
+        Proyeccion proyeccion3 = cubo3.proyectar();
+
+        // Mostrar Dimensiones POS vs Fechas (hecho: cantidad)
+        proyeccion3.seleccionarHecho("costo");
+        proyeccion3.seleccionarMedida("suma");
+        proyeccion3.print("POS", "Fechas");
+
     }
 }

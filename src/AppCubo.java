@@ -63,5 +63,6 @@ public class AppCubo {
         proyeccion3.seleccionarMedida("suma");
         proyeccion3.print("POS", "Fechas");
 
+
     }
 }

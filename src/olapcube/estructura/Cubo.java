@@ -134,11 +134,16 @@ public class Cubo {
         // Clonar la configuración actual
         ConfigCubo nuevaConfig = config;
 
-        // Reducir la granularidad de la dimensión seleccionada
+        // Aumentar la granularidad de la dimensión seleccionada
         for (ConfigDimension dimensionConfig : nuevaConfig.getDimensiones()) {
             if (dimensionConfig.getNombre().equals(nombreDimension)) {
-                dimensionConfig.setColumnaValor(dimensionConfig.getColumnaValor() - 1); // TODO: QUE NO SE PASEE
+                if (dimensionConfig.getColumnaValor() == 1){
+                    break;
+                }
+                else{
+                dimensionConfig.setColumnaValor(dimensionConfig.getColumnaValor() - 1); // YA NO SE PASA
                 break;
+                }
             }
         }
 

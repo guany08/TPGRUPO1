@@ -22,9 +22,9 @@ import olapcube.metricas.Minimo;
  */
 public class Cubo {
     private Map<String, Dimension> dimensiones; // Mapeo de nombres de dimensión al objeto de la dimensión
-    private Map<String, Medida> medidas;        // Mapeo de nombres de medida al objeto de la medida
-    private List<Celda> celdas;                 // Lista de celdas del cubo
-    private List<String> nombresHechos;         // Nombres de los hechos (columnas con valores del dataset de hechos)
+    private Map<String, Medida> medidas; // Mapeo de nombres de medida al objeto de la medida
+    private List<Celda> celdas; // Lista de celdas del cubo
+    private List<String> nombresHechos; // Nombres de los hechos (columnas con valores del dataset de hechos)
     private ConfigCubo config;
 
     private Cubo(ConfigCubo config) {
@@ -109,7 +109,8 @@ public class Cubo {
 
     public void agregarCelda(Celda celda) {
         // TODO: Validar que la celda tenga los mismos hechos que las celdas anteriores
-        // TODO: Validar que la celda tenga la misma cantidad de hechos que los hechos del cubo
+        // TODO: Validar que la celda tenga la misma cantidad de hechos que los hechos
+        // del cubo
         // TODO: Validar que la celda tenga la misma cantidad de valores para cada hecho
         celdas.add(celda);
     }
@@ -121,8 +122,12 @@ public class Cubo {
         // Reducir la granularidad de la dimensión seleccionada
         for (ConfigDimension dimensionConfig : nuevaConfig.getDimensiones()) {
             if (dimensionConfig.getNombre().equals(nombreDimension)) {
-                dimensionConfig.setColumnaValor(dimensionConfig.getColumnaValor() + 1); // TODO: QUE NO SE PASEE
-                break;
+                if (dimensionConfig.getColumnaValor() == getDimension(nombreDimension).length()) {
+                    break;
+                } else {
+                    dimensionConfig.setColumnaValor(dimensionConfig.getColumnaValor() + 1); // TODO: QUE NO SE PASEE
+                    break;
+                }
             }
         }
 
@@ -137,12 +142,11 @@ public class Cubo {
         // Aumentar la granularidad de la dimensión seleccionada
         for (ConfigDimension dimensionConfig : nuevaConfig.getDimensiones()) {
             if (dimensionConfig.getNombre().equals(nombreDimension)) {
-                if (dimensionConfig.getColumnaValor() == 1){
+                if (dimensionConfig.getColumnaValor() == 1) {
                     break;
-                }
-                else{
-                dimensionConfig.setColumnaValor(dimensionConfig.getColumnaValor() - 1); // YA NO SE PASA
-                break;
+                } else {
+                    dimensionConfig.setColumnaValor(dimensionConfig.getColumnaValor() - 1); // YA NO SE PASA
+                    break;
                 }
             }
         }
@@ -151,13 +155,29 @@ public class Cubo {
         return Cubo.crearFromConfig(nuevaConfig);
     }
 
+    public Cubo slice(String nombreDimension, int nColumna, String valor) {
+        // Crear un nuevo cubo con la configuración modificada
+        Cubo cubo_to_slice = Cubo.crearFromConfig(config);
+
+        List<Boolean> mask;
+
+        // Recorrer las dimensiones de Cubo, si la dimension de cubo = nombre dimension
+
+        System.out.println(getCelda(getDimension(nombreDimension), valor));
+
+        return cubo_to_slice;
+
+    }
+
     @Override
     public String toString() {
-        return "Cubo [celdas=" + celdas.size() + ", dimensiones=" + dimensiones.keySet() + ", medidas=" + medidas.size() + "]";
+        return "Cubo [celdas=" + celdas.size() + ", dimensiones=" + dimensiones.keySet() + ", medidas=" + medidas.size()
+                + "]";
     }
 
     /**
      * Obtiene las celdas a partir de un conjunto de indices
+     * 
      * @param indices Conjunto de indices
      * @return Lista de celdas
      */
@@ -170,24 +190,28 @@ public class Cubo {
     }
 
     /**
-     * Obtiene una celda a partir de una dimensión y un valor, reduciendo las dos dimensiones restantes.
+     * Obtiene una celda a partir de una dimensión y un valor, reduciendo las dos
+     * dimensiones restantes.
      * 
      * @param dimension La dimensión a la que pertenece el valor
-     * @param valor El valor de la dimensión a buscar
-     * @return Celda que agrupa todas las celdas que contienen el valor en esa dimensión
+     * @param valor     El valor de la dimensión a buscar
+     * @return Celda que agrupa todas las celdas que contienen el valor en esa
+     *         dimensión
      */
     public Celda getCelda(Dimension dimension, String valor) {
         return Celda.agrupar(celdasFromIndices(dimension.getIndicesCeldas(valor)));
     }
 
     /**
-     * Obtiene una celda a partir de dos dimensiones y dos valores, reduciendo la dimensión restante.
+     * Obtiene una celda a partir de dos dimensiones y dos valores, reduciendo la
+     * dimensión restante.
      * 
-     * @param dim1 La primera dimensión
+     * @param dim1   La primera dimensión
      * @param valor1 El valor de la primera dimensión
-     * @param dim2 La segunda dimensión
+     * @param dim2   La segunda dimensión
      * @param valor2 El valor de la segunda dimensión
-     * @return Celda que agrupa todas las celdas que contienen los valores en esas dos dimensiones
+     * @return Celda que agrupa todas las celdas que contienen los valores en esas
+     *         dos dimensiones
      */
     public Celda getCelda(Dimension dim1, String valor1, Dimension dim2, String valor2) {
         Set<Integer> indicesComunes = celdasComunes(dim1.getIndicesCeldas(valor1), dim2.getIndicesCeldas(valor2));

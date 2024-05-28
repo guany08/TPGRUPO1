@@ -83,4 +83,8 @@ public class Dimension {
         }
         valoresToCeldas.get(idToValores.get(idValor)).add(indiceCelda);
     }
+
+    public int length() {
+        return getValores().length + 1;
+    }
 }

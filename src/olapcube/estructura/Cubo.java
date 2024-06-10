@@ -6,16 +6,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import olapcube.Proyeccion;
 import olapcube.configuration.ConfigCubo;
 import olapcube.configuration.ConfigDimension;
-import olapcube.metricas.Medida;
 import olapcube.metricas.Count;
-import olapcube.metricas.Suma;
-import olapcube.metricas.Media;
 import olapcube.metricas.Maximo;
+import olapcube.metricas.Media;
+import olapcube.metricas.Medida;
 import olapcube.metricas.Minimo;
+import olapcube.metricas.Suma;
 
 /**
  * Representa un cubo OLAP.
@@ -155,18 +154,40 @@ public class Cubo {
         return Cubo.crearFromConfig(nuevaConfig);
     }
 
-    public Cubo slice(String nombreDimension, int nColumna, String valor) {
+    public Cubo slice(String nombreDimension, String valor) {
         // Crear un nuevo cubo con la configuración modificada
-        Cubo cubo_to_slice = Cubo.crearFromConfig(config);
-
-        List<Boolean> mask;
+        Cubo cubo = Cubo.crearFromConfig(config);
 
         // Recorrer las dimensiones de Cubo, si la dimension de cubo = nombre dimension
 
-        System.out.println(getCelda(getDimension(nombreDimension), valor));
+        cubo.dimensiones.get(nombreDimension).filtrar(valor);
 
-        return cubo_to_slice;
+        return cubo;
 
+    }
+
+    public Cubo dice(String nombreDimension, String[] valores) {
+        // Crear un nuevo cubo con la configuración modificada
+        Cubo cubo = Cubo.crearFromConfig(config);
+        cubo.dimensiones.get(nombreDimension).filtrar(valores);
+        return cubo;
+    }
+
+    public Cubo dice(String nombreDimension1, String[] valores1, String nombreDimension2, String[] valores2) {
+        // Crear un nuevo cubo con la configuración modificada
+        Cubo cubo = Cubo.crearFromConfig(config);
+        cubo.dimensiones.get(nombreDimension1).filtrar(valores1);
+        cubo.dimensiones.get(nombreDimension2).filtrar(valores2);
+        return cubo;
+    }
+
+    public Cubo dice(String nombreDimension1, String[] valores1, String nombreDimension2, String[] valores2, String nombreDimension3, String[] valores3) {
+        // Crear un nuevo cubo con la configuración modificada
+        Cubo cubo = Cubo.crearFromConfig(config);
+        cubo.dimensiones.get(nombreDimension1).filtrar(valores1);
+        cubo.dimensiones.get(nombreDimension2).filtrar(valores2);
+        cubo.dimensiones.get(nombreDimension3).filtrar(valores3);
+        return cubo;
     }
 
     @Override

@@ -51,7 +51,33 @@ public class AppCubo {
         proyeccion2.seleccionarMedida("suma");
         proyeccion2.print("POS", "Fechas");
 
-        Cubo cubo3 = cubo2.slice("Fechas", 5, "2019 ");
+        // Slice!
+
+        Cubo cuboslice = cubo2.slice("Fechas", "2019");
+
+        Proyeccion proyeccionslice = cuboslice.proyectar();
+
+        // Esto no funciona bien.
+        proyeccionslice.print("POS");
+
+        // Mostrar Dimensiones POS vs Fechas (hecho: cantidad)
+        proyeccionslice.seleccionarHecho("costo");
+        proyeccionslice.seleccionarMedida("suma");
+        proyeccionslice.print("POS", "Fechas");
+
+        // Dice!
+
+        Cubo cubodice = cubo2.dice("POS", new String[]{"Canada","France"}, "Fechas", new String[]{"2018","2019"});
+
+        Proyeccion proyeccionsdice = cubodice.proyectar();
+
+        // Esto no funciona bien.
+        proyeccionsdice.print("POS");
+
+        // Mostrar Dimensiones POS vs Fechas (hecho: cantidad)
+        proyeccionsdice.seleccionarHecho("costo");
+        proyeccionsdice.seleccionarMedida("suma");
+        proyeccionsdice.print("POS", "Fechas");
 
     }
 }

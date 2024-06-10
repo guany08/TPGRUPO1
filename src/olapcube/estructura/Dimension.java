@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
 import olapcube.configuration.ConfigDimension;
 
 /**
@@ -44,6 +43,18 @@ public class Dimension {
         }
 
         return dim;
+    }
+
+    public void filtrar(String valor){
+        filtrar(new String[]{valor});
+    }
+
+    public void filtrar(String[] valores){
+        HashMap<String, Set<Integer>> nuevosValores = new HashMap<>();
+        for (String valor : valores){
+            nuevosValores.put(valor, valoresToCeldas.get(valor));
+        }
+        valoresToCeldas = nuevosValores;
     }
 
     @Override

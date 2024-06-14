@@ -31,52 +31,57 @@ public class AppCubo {
         // Mostrar Dimension POS (hecho: default)
         proyeccion.print("POS");
 
-        // Mostrar Dimensiones POS vs Fechas (hecho: cantidad)
+        // Mostrar Dimensiones POS vs Fechas (hecho: costo)
         proyeccion.seleccionarHecho("costo");
         proyeccion.seleccionarMedida("suma");
         proyeccion.print("POS", "Fechas");
 
-        // Prueba Roll-Up
+        // Drill Down por Fechas
 
-        Cubo cubo2 = cubo.rollup("Fechas");
+        Cubo cubo2 = cubo.drilldown("Fechas");
 
         // Proyecciones
         Proyeccion proyeccion2 = cubo2.proyectar();
 
-        // Mostrar Dimension POS (hecho: default)
-        proyeccion2.print("POS");
-
-        // Mostrar Dimensiones POS vs Fechas (hecho: cantidad)
+        // Mostrar Dimensiones POS vs Fechas (hecho: costo)
         proyeccion2.seleccionarHecho("costo");
         proyeccion2.seleccionarMedida("suma");
         proyeccion2.print("POS", "Fechas");
 
+        // Rollup por Fechas
+
+        Cubo cubo3 = cubo2.rollup("Fechas");
+
+        // Proyecciones
+        Proyeccion proyeccion3 = cubo3.proyectar();
+
+        // Mostrar Dimensiones POS vs Fechas (hecho: costo)
+        proyeccion3.seleccionarHecho("costo");
+        proyeccion3.seleccionarMedida("suma");
+        proyeccion3.print("POS", "Fechas");
+
         // Slice!
 
-        Cubo cuboslice = cubo2.slice("Fechas", "2019");
+        Cubo cuboslice = cubo3.slice("Fechas", "2019");
 
         Proyeccion proyeccionslice = cuboslice.proyectar();
 
-        // Esto no funciona bien.
-        proyeccionslice.print("POS");
-
-        // Mostrar Dimensiones POS vs Fechas (hecho: cantidad)
+        // Mostrar Dimensiones POS vs Productos (hecho: costo) ACA MUESTRA LO MISMO QUE EL CUBO ENTERO
         proyeccionslice.seleccionarHecho("costo");
         proyeccionslice.seleccionarMedida("suma");
-        proyeccionslice.print("POS", "Fechas");
+        proyeccionslice.print("POS", "Productos");
 
-        // Dice!
+        // Dice! NO SUMA BIEN LOS VALORES EN 1D MUESTRA UN VALOR y EN 2D LA SUMA NO ES IGUAL AL VALOR De 1D
 
         Cubo cubodice = cubo2.dice("POS", new String[]{"Canada","France"}, "Fechas", new String[]{"2018","2019"});
 
         Proyeccion proyeccionsdice = cubodice.proyectar();
 
-        // Esto no funciona bien.
-        proyeccionsdice.print("POS");
 
-        // Mostrar Dimensiones POS vs Fechas (hecho: cantidad)
-        proyeccionsdice.seleccionarHecho("costo");
+        // Mostrar Dimensiones POS vs Fechas (hecho: valor total)
+        proyeccionsdice.seleccionarHecho("valor_total");
         proyeccionsdice.seleccionarMedida("suma");
+        proyeccionsdice.print("POS");
         proyeccionsdice.print("POS", "Fechas");
 
     }

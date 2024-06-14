@@ -36,9 +36,9 @@ public class AppCubo {
         proyeccion.seleccionarMedida("suma");
         proyeccion.print("POS", "Fechas");
 
-        // Prueba Roll-Up
+        // Drill down Fecha
 
-        Cubo cubo2 = cubo.rollup("Fechas");
+        Cubo cubo2 = cubo.drilldown("Fechas");
 
         // Proyecciones
         Proyeccion proyeccion2 = cubo2.proyectar();
@@ -50,20 +50,26 @@ public class AppCubo {
         proyeccion2.seleccionarHecho("costo");
         proyeccion2.seleccionarMedida("suma");
         proyeccion2.print("POS", "Fechas");
-
+        
+        // Roll Up de fecha
+        Cubo cubo3 = cubo2.rollup("Fechas");
+        Proyeccion proyeccion3 = cubo3.proyectar();
+        proyeccion3.seleccionarHecho("costo");
+        proyeccion3.seleccionarMedida("suma");
+        proyeccion3.print("POS", "Fechas");
+        
         // Slice!
-
-        Cubo cuboslice = cubo2.slice("Fechas", "2019");
-
+        Cubo cuboslice = cubo3.slice("Fechas", "2019");
         Proyeccion proyeccionslice = cuboslice.proyectar();
 
-        // Esto no funciona bien.
-        proyeccionslice.print("POS");
-
-        // Mostrar Dimensiones POS vs Fechas (hecho: cantidad)
-        proyeccionslice.seleccionarHecho("costo");
+        // Mostrar Dimensiones POS vs Productos (hecho: valor total)
+        proyeccionslice.seleccionarHecho("valor_total");
         proyeccionslice.seleccionarMedida("suma");
-        proyeccionslice.print("POS", "Fechas");
+        proyeccionslice.print("POS", "Productos");
+
+        proyeccion3.seleccionarHecho("valor_total");
+        proyeccion3.seleccionarMedida("suma");
+        proyeccion3.print("POS", "Productos");
 
         // Dice!
 

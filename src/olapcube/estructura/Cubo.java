@@ -9,6 +9,8 @@ import java.util.Set;
 import olapcube.Proyeccion;
 import olapcube.configuration.ConfigCubo;
 import olapcube.configuration.ConfigDimension;
+import olapcube.excepciones.DimensionNotFoundException;
+import olapcube.excepciones.MedidaNotFoundException;
 import olapcube.metricas.Count;
 import olapcube.metricas.Maximo;
 import olapcube.metricas.Media;
@@ -92,12 +94,15 @@ public class Cubo {
     }
 
     public Medida getMedida(String nombre) {
+        if (!medidas.containsKey(nombre)) {
+            throw new MedidaNotFoundException("La medida " + nombre + " no existe.");
+        }
         return medidas.get(nombre);
     }
 
     public Dimension getDimension(String nombre) {
         if (!dimensiones.containsKey(nombre)) {
-            throw new IllegalArgumentException("Dimension no encontrada: " + nombre);
+            throw new DimensionNotFoundException("La dimensión " + nombre + " no existe.");
         }
         return dimensiones.get(nombre);
     }
@@ -124,7 +129,7 @@ public class Cubo {
                 if (dimensionConfig.getColumnaValor() == getDimension(nombreDimension).length()) {
                     break;
                 } else {
-                    dimensionConfig.setColumnaValor(dimensionConfig.getColumnaValor() + 1); // TODO: QUE NO SE PASEE
+                    dimensionConfig.setColumnaValor(dimensionConfig.getColumnaValor() + 1); 
                     break;
                 }
             }
@@ -144,7 +149,7 @@ public class Cubo {
                 if (dimensionConfig.getColumnaValor() == 1) {
                     break;
                 } else {
-                    dimensionConfig.setColumnaValor(dimensionConfig.getColumnaValor() - 1); // YA NO SE PASA
+                    dimensionConfig.setColumnaValor(dimensionConfig.getColumnaValor() - 1);
                     break;
                 }
             }
@@ -159,7 +164,9 @@ public class Cubo {
         Cubo cubo = Cubo.crearFromConfig(config);
 
         // Recorrer las dimensiones de Cubo, si la dimension de cubo = nombre dimension
-
+        if (!cubo.dimensiones.containsKey(nombreDimension)) {
+            throw new DimensionNotFoundException("La dimensión " + nombreDimension + " no existe.");
+        }        
         cubo.dimensiones.get(nombreDimension).filtrar(valor);
 
         return cubo;

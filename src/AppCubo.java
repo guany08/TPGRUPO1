@@ -26,11 +26,12 @@ public class AppCubo {
         System.out.println("Cubo creado: " + cubo);
 
         // Proyecciones
+        System.out.println(("PROYECCION 1D"));
         Proyeccion proyeccion = cubo.proyectar();
 
         // Mostrar Dimension POS (hecho: default)
         proyeccion.print("POS");
-
+        System.out.println(("PROYECCION 2D"));
         // Mostrar Dimensiones POS vs Fechas (hecho: costo)
         proyeccion.seleccionarHecho("costo");
         proyeccion.seleccionarMedida("suma");
@@ -42,7 +43,7 @@ public class AppCubo {
 
         // Proyecciones
         Proyeccion proyeccion2 = cubo2.proyectar();
-
+        System.out.println(("PROYECCION 2D DESPUES DEL DRILL DOWN POR FECHAS"));
         // Mostrar Dimensiones POS vs Fechas (hecho: costo)
         proyeccion2.seleccionarHecho("costo");
         proyeccion2.seleccionarMedida("suma");
@@ -54,7 +55,7 @@ public class AppCubo {
 
         // Proyecciones
         Proyeccion proyeccion3 = cubo3.proyectar();
-
+        System.out.println(("PROYECCION 2D DESPUES DEL ROLL UP POR FECHAS"));
         // Mostrar Dimensiones POS vs Fechas (hecho: costo)
         proyeccion3.seleccionarHecho("costo");
         proyeccion3.seleccionarMedida("suma");
@@ -65,7 +66,7 @@ public class AppCubo {
         Cubo cuboslice = cubo3.slice("Fechas", "2019");
 
         Proyeccion proyeccionslice = cuboslice.proyectar();
-
+        System.out.println(("PROYECCION 2D DESPUES DEL SLICE POR FECHAS 2019"));
         // Mostrar Dimensiones POS vs Productos (hecho: costo) ACA MUESTRA LO MISMO QUE EL CUBO ENTERO
         proyeccionslice.seleccionarHecho("costo");
         proyeccionslice.seleccionarMedida("suma");
@@ -77,7 +78,7 @@ public class AppCubo {
 
         Proyeccion proyeccionsdice = cubodice.proyectar();
 
-
+        System.out.println(("PROYECCION 2D DESPUES DICE POR PAIS 'CANADA, FRANCE' Y FECHAS '2018, 2019'"));
         // Mostrar Dimensiones POS vs Fechas (hecho: valor total)
         proyeccionsdice.seleccionarHecho("valor_total");
         proyeccionsdice.seleccionarMedida("suma");

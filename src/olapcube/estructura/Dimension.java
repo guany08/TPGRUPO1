@@ -5,6 +5,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import olapcube.configuration.ConfigDimension;
+import olapcube.excepciones.InvalidValueException;
+import olapcube.excepciones.ValueNotFoundException;
 
 /**
  * Clase que representa una dimension de un cubo OLAP.
@@ -52,6 +54,9 @@ public class Dimension {
     public void filtrar(String[] valores){
         HashMap<String, Set<Integer>> nuevosValores = new HashMap<>();
         for (String valor : valores){
+            if (!valoresToCeldas.containsKey(valor)) {
+                throw new ValueNotFoundException("El valor " + valor + " no existe en la dimensión.");
+            }
             nuevosValores.put(valor, valoresToCeldas.get(valor));
         }
         valoresToCeldas = nuevosValores;
@@ -67,6 +72,9 @@ public class Dimension {
     }
 
     public Set<Integer> getIndicesCeldas(String valor) {
+        if (!valoresToCeldas.containsKey(valor)) {
+            throw new ValueNotFoundException("El valor " + valor + " no existe en la dimensión.");
+        }
         return valoresToCeldas.get(valor);
     }
 

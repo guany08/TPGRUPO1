@@ -1,9 +1,13 @@
 package olapcube;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
 import olapcube.estructura.Celda;
 import olapcube.estructura.Cubo;
 import olapcube.estructura.Dimension;
+import olapcube.excepciones.HechoNotFoundException;
 
 /**
  * Clase que representa una proyeccion de un cubo OLAP
@@ -14,6 +18,7 @@ public class Proyeccion {
     private int maxColumnas = 10; // Maximo de columnas a mostrar
     private String hecho; // Hecho a proyectar
     private String medida; // Medida a proyectar
+    private List<String> hechos_del_cubo; // Hechos del cubo
 
     // Atributos para mostrar en consola
     private String formatoCelda = "%8.8s";
@@ -26,11 +31,16 @@ public class Proyeccion {
      */
     public Proyeccion(Cubo cubo) {
         this.cubo = cubo;
+        this.hechos_del_cubo = new ArrayList<>();
+        this.hechos_del_cubo = cubo.getNombresHechos();
         this.hecho = cubo.getNombresHechos().get(0); // Selecciona el primer hecho por defecto
         this.medida = cubo.getMedidas().get(0); // Selecciona la primera medida por defecto
     }
 
     public void seleccionarHecho(String hecho) {
+        if (!hechos_del_cubo.contains(hecho)) {
+            throw new HechoNotFoundException("El hecho " + hecho + " no existe en el cubo.");
+        }
         this.hecho = hecho;
     }
 
@@ -43,7 +53,7 @@ public class Proyeccion {
      * 
      * @param nombreDimension Nombre de la dimension a proyectar
      */
-    public void print(String nombreDimension) {
+    public void print(String nombreDimension) {        
         Dimension dimension = cubo.getDimension(nombreDimension);
         System.out.println("Proyeccion de " + dimension.getNombre());
 

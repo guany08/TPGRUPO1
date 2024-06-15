@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import olapcube.configuration.ConfigDimension;
-import olapcube.excepciones.InvalidValueException;
 import olapcube.excepciones.ValueNotFoundException;
 
 /**

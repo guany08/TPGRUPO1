@@ -31,6 +31,10 @@ public class Dimension {
         return dimension;
     }
 
+    public int length() {
+        return getValores().length + 1;
+    }
+
     public Dimension copiar() {
         Dimension newDimension = new Dimension(this.nombre);
         newDimension.setColumnaFkHechos(this.columnaFkHechos);

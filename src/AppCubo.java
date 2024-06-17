@@ -17,51 +17,65 @@ public class AppCubo {
                 "puntos_venta.csv",
                 "fechas.csv",
                 3, // Columna de valor para Productos
-                4, // Columna de valor para POS
-                5, // Columna de valor para Fechas
+                5, // Columna de valor para POS
+                4, // Columna de valor para Fechas
                 0, // FK Productos
                 1, // FK POS
                 2, // FK Fechas
-                new Integer[] { 3, 4, 5, 6 } // Columnas de hechos de ventas, changed to int[]
+                new Integer[] { 3, 4, 5, 6 } // Columnas de hechos de ventas
         );
 
         Cubo cubo = Cubo.crearFromConfig(config);
         System.out.println("Cubo creado: " + cubo);
 
-        // Proyecciones
-        System.out.println(("PROYECCION 1D"));
+        // Proyección inicial
+        System.out.println("PROYECCION 1D");
         Proyeccion proyeccion = cubo.proyectar();
-
-        // Mostrar Dimension POS (hecho: default)
         proyeccion.print("POS");
-        System.out.println(("PROYECCION 2D"));
-        // Mostrar Dimensiones POS vs Fechas (hecho: costo)
+
+        // Proyección 2D antes del Drill Down
+        System.out.println("PROYECCION 2D");
         proyeccion.seleccionarHecho("costo");
         proyeccion.seleccionarMedida("suma");
         proyeccion.print("POS", "Fechas");
 
-        // Slice!
-        Cubo cuboslice = cubo.slice("Fechas", "2019");
+        // Roll Up por Fechas
+        Cubo cuboRollUpFechas = cubo.rollup("Fechas");
+        Proyeccion proyeccionRollUpFechas = cuboRollUpFechas.proyectar();
+        System.out.println("PROYECCION 2D DESPUES DEL ROLL UP POR FECHAS");
+        proyeccionRollUpFechas.seleccionarHecho("costo");
+        proyeccionRollUpFechas.seleccionarMedida("suma");
+        proyeccionRollUpFechas.print("POS", "Fechas");
 
-        Proyeccion proyeccionslice = cuboslice.proyectar();
-        System.out.println(("PROYECCION 2D DESPUES DEL SLICE POR FECHAS 2019"));
-        proyeccionslice.seleccionarHecho("costo");
-        proyeccionslice.seleccionarMedida("suma");
-        proyeccionslice.print("POS");
-        proyeccionslice.print("POS", "Productos");
+        // Drill Down por POS
+        Cubo cuboDrillDownPOS = cuboRollUpFechas.drilldown("POS");
+        Proyeccion proyeccionDrillDownPOS = cuboDrillDownPOS.proyectar();
+        System.out.println("PROYECCION 2D DESPUES DEL DRILL DOWN POR POS");
+        proyeccionDrillDownPOS.seleccionarHecho("costo");
+        proyeccionDrillDownPOS.seleccionarMedida("suma");
+        proyeccionDrillDownPOS.print("POS", "Fechas");
 
-        // Dice!
+        // Slice por Fechas
+        Cubo cuboSlice = cuboDrillDownPOS.slice("Fechas", "2019");
+        Proyeccion proyeccionSlice = cuboSlice.proyectar();
+        System.out.println("PROYECCION 2D DESPUES DEL SLICE POR FECHAS 2019");
+        proyeccionSlice.seleccionarHecho("costo");
+        proyeccionSlice.seleccionarMedida("suma");
+        proyeccionSlice.print("POS");
+        proyeccionSlice.print("POS", "Productos");
+
+        // Dice por POS y Fechas
         Map<String, Set<String>> condiciones = new HashMap<>();
         condiciones.put("POS", Set.of("Canada", "France"));
         condiciones.put("Fechas", Set.of("2018", "2019"));
 
-        Cubo cubodice = cubo.dice(condiciones);
-
-        Proyeccion proyecciondice = cubodice.proyectar();
-        System.out.println(("PROYECCION 2D DESPUES DEL DICE POR PAÍSES FRANCIA, CANADA Y FECHAS 2018, 2019"));
-        proyecciondice.seleccionarHecho("costo");
-        proyecciondice.seleccionarMedida("suma");
-        proyecciondice.print("POS");
-        proyecciondice.print("POS", "Productos");
+        Cubo cuboDice = cuboSlice.dice(condiciones);
+        Proyeccion proyeccionDice = cuboDice.proyectar();
+        System.out.println("PROYECCION 2D DESPUES DEL DICE POR PAÍSES FRANCIA, CANADA Y FECHAS 2018, 2019");
+        proyeccionDice.seleccionarHecho("costo");
+        proyeccionDice.seleccionarMedida("suma");
+        proyeccionDice.print("POS");
+        proyeccionDice.print("Productos", "POS");
+        proyeccionDice.print("POS", "Productos");
     }
 }

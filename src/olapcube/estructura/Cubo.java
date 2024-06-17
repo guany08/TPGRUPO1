@@ -124,6 +124,48 @@ public class Cubo {
         }
     }
 
+    public Cubo rollup(String nombreDimension) {
+        // Clonar la configuración actual
+        ConfigCubo nuevaConfig = config;
+
+        // Reducir la granularidad de la dimensión seleccionada
+        for (ConfigDimension dimensionConfig : nuevaConfig.getDimensiones()) {
+            if (dimensionConfig.getNombre().equals(nombreDimension)) {
+                if (dimensionConfig.getColumnaValor() == getDimension(nombreDimension).length()) {
+                    System.out.println(dimensionConfig.getColumnaValor());
+                    System.out.println(getDimension(nombreDimension).length());
+                    break;
+                } else {
+                    dimensionConfig.setColumnaValor(dimensionConfig.getColumnaValor() + 1);
+                    break;
+                }
+            }
+        }
+
+        // Crear un nuevo cubo con la configuración modificada
+        return Cubo.crearFromConfig(nuevaConfig);
+    }
+
+    public Cubo drilldown(String nombreDimension) {
+        // Clonar la configuración actual
+        ConfigCubo nuevaConfig = config;
+
+        // Aumentar la granularidad de la dimensión seleccionada
+        for (ConfigDimension dimensionConfig : nuevaConfig.getDimensiones()) {
+            if (dimensionConfig.getNombre().equals(nombreDimension)) {
+                if (dimensionConfig.getColumnaValor() == 1) {
+                    break;
+                } else {
+                    dimensionConfig.setColumnaValor(dimensionConfig.getColumnaValor() - 1);
+                    break;
+                }
+            }
+        }
+
+        // Crear un nuevo cubo con la configuración modificada
+        return Cubo.crearFromConfig(nuevaConfig);
+    }
+
     public Cubo slice(String nombreDimension, String valor) {
         Cubo cubo = new Cubo(this.config);
         copiarDimensiones(cubo);

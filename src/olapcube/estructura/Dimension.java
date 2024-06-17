@@ -7,63 +7,56 @@ import java.util.Set;
 import olapcube.configuration.ConfigDimension;
 import olapcube.excepciones.ValueNotFoundException;
 
-/**
- * Clase que representa una dimension de un cubo OLAP.
- */
 public class Dimension {
-    private String nombre;                              // Nombre de la dimension
-    private Map<String, Set<Integer>> valoresToCeldas;  // Mapeo de valores de la dimensión a celdas en el cubo
-    private Map<Integer, String> idToValores;           // Mapeo de ids (pk) de la dimensión a valores
-    private int columnaFkHechos;                        // Columna que contiene la clave foránea en la tabla de los hechos
-    
-    /**
-     * Constructor de la clase
-     * 
-     * @param nombre Nombre de la dimension
-     */
-    private Dimension(String nombre) {
+    private final String nombre;
+    private final Map<String, Set<Integer>> valoresToCeldas;
+    private final Map<Integer, String> idToValores;
+    private int columnaFkHechos;
+
+    public Dimension(String nombre) {
         this.nombre = nombre;
-        valoresToCeldas = new HashMap<>();
-        idToValores = new HashMap<>();
+        this.valoresToCeldas = new HashMap<>();
+        this.idToValores = new HashMap<>();
     }
 
-    /**
-     * Método constructor que permite crear una dimensión a partir de una configuración
-     * 
-     * @param configDimension Configuración de la dimensión
-     * @return Dimension
-     */
     public static Dimension crear(ConfigDimension configDimension) {
-        Dimension dim = new Dimension(configDimension.getNombre());
-        dim.columnaFkHechos = configDimension.getColumnaFkHechos();
+        Dimension dimension = new Dimension(configDimension.getNombre());
+        dimension.columnaFkHechos = configDimension.getColumnaFkHechos();
         for (String[] datos : configDimension.getDatasetReader().read()) {
             int pkDimension = Integer.parseInt(datos[configDimension.getColumnaKey()]);
             String valor = datos[configDimension.getColumnaValor()];
-            dim.idToValores.put(pkDimension, valor);
-            dim.valoresToCeldas.put(valor, new HashSet<>());
+            dimension.idToValores.put(pkDimension, valor);
+            dimension.valoresToCeldas.putIfAbsent(valor, new HashSet<>());
         }
-
-        return dim;
+        return dimension;
     }
 
-    public void filtrar(String valor){
-        filtrar(new String[]{valor});
+    public Dimension copiar() {
+        Dimension newDimension = new Dimension(this.nombre);
+        newDimension.setColumnaFkHechos(this.columnaFkHechos);
+        newDimension.setIdToValores(new HashMap<>(this.idToValores));
+        newDimension.setValoresToCeldas(new HashMap<>(this.valoresToCeldas));
+        return newDimension;
     }
 
-    public void filtrar(String[] valores){
-        HashMap<String, Set<Integer>> nuevosValores = new HashMap<>();
-        for (String valor : valores){
-            if (!valoresToCeldas.containsKey(valor)) {
-                throw new ValueNotFoundException("El valor " + valor + " no existe en la dimensión.");
-            }
-            nuevosValores.put(valor, valoresToCeldas.get(valor));
-        }
-        valoresToCeldas = nuevosValores;
+    public void setColumnaFkHechos(int columnaFkHechos) {
+        this.columnaFkHechos = columnaFkHechos;
     }
 
-    @Override
-    public String toString() {
-        return "Dimension [nombre=" + nombre + "]";
+    public void setIdToValores(Map<Integer, String> idToValores) {
+        this.idToValores.putAll(idToValores);
+    }
+
+    public void setValoresToCeldas(Map<String, Set<Integer>> valoresToCeldas) {
+        this.valoresToCeldas.putAll(valoresToCeldas);
+    }
+
+    public Map<Integer, String> getIdToValores() {
+        return idToValores;
+    }
+
+    public Map<String, Set<Integer>> getValoresToCeldas() {
+        return valoresToCeldas;
     }
 
     public String[] getValores() {
@@ -81,20 +74,10 @@ public class Dimension {
         return nombre;
     }
 
-    public String getValorFromId(Integer id) {
-        return idToValores.get(id);
-    }
-
     public int getColumnaFkHechos() {
         return columnaFkHechos;
     }
 
-    /**
-     * Método que permite agregar un hecho a la dimensión
-     * 
-     * @param idValor id (pk) de la dimensión
-     * @param indiceCelda índice de la celda en el cubo
-     */
     public void agregarHecho(int idValor, int indiceCelda) {
         if (!idToValores.containsKey(idValor)) {
             throw new IllegalArgumentException("El id " + idValor + " del valor no existe en la dimension " + nombre);
@@ -102,7 +85,22 @@ public class Dimension {
         valoresToCeldas.get(idToValores.get(idValor)).add(indiceCelda);
     }
 
-    public int length() {
-        return getValores().length + 1;
+    public void actualizarIndices(Map<Integer, Integer> oldToNewIndexMap) {
+        for (Map.Entry<String, Set<Integer>> entry : valoresToCeldas.entrySet()) {
+            Set<Integer> newIndices = new HashSet<>();
+            for (Integer oldIndex : entry.getValue()) {
+                if (oldToNewIndexMap.containsKey(oldIndex)) {
+                    newIndices.add(oldToNewIndexMap.get(oldIndex));
+                }
+            }
+            entry.setValue(newIndices);
+        }
+    }
+
+    public void filtrarValores(Set<Integer> filteredCellIndices) {
+        for (Map.Entry<String, Set<Integer>> entry : valoresToCeldas.entrySet()) {
+            entry.getValue().retainAll(filteredCellIndices);
+        }
+        valoresToCeldas.values().removeIf(Set::isEmpty);
     }
 }

@@ -3,7 +3,6 @@ package olapcube;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import olapcube.estructura.Celda;
 import olapcube.estructura.Cubo;
 import olapcube.estructura.Dimension;
@@ -29,6 +28,7 @@ public class Proyeccion {
      * 
      * @param cubo Cubo sobre el que se realiza la proyeccion
      */
+
     public Proyeccion(Cubo cubo) {
         this.cubo = cubo;
         this.hechos_del_cubo = new ArrayList<>();
@@ -53,7 +53,7 @@ public class Proyeccion {
      * 
      * @param nombreDimension Nombre de la dimension a proyectar
      */
-    public void print(String nombreDimension) {        
+    public void print(String nombreDimension) {
         Dimension dimension = cubo.getDimension(nombreDimension);
         System.out.println("Proyeccion de " + dimension.getNombre());
 
@@ -67,8 +67,19 @@ public class Proyeccion {
             valores[i][0] = cubo.getMedida(medida).calcular(celdaAgrupada.getValores(hecho));
         }
 
+        // Filtrar valores cero
+        String[] filteredValores = Arrays.stream(dimension.getValores())
+            .filter(val -> {
+                int index = Arrays.asList(dimension.getValores()).indexOf(val);
+                return valores[index][0] != 0.0;
+            }).toArray(String[]::new);
+
+        Double[][] filteredResults = Arrays.stream(valores)
+            .filter(row -> row[0] != 0.0)
+            .toArray(Double[][]::new);
+
         // Muestra en consola
-        printTablaConsola(dimension.getValores(), columnas, valores);
+        printTablaConsola(filteredValores, columnas, filteredResults);
     }
 
     /**
@@ -94,8 +105,34 @@ public class Proyeccion {
             }
         }
 
+        // Filtrar filas y columnas con todos valores cero
+        List<String> filteredRows = new ArrayList<>();
+        List<String> filteredCols = new ArrayList<>(Arrays.asList(dimension2.getValores()));
+
+        Double[][] filteredValues = Arrays.stream(valores)
+            .filter(row -> {
+                boolean hasNonZero = Arrays.stream(row).anyMatch(value -> value != 0.0);
+                if (hasNonZero) {
+                    int index = Arrays.asList(valores).indexOf(row);
+                    filteredRows.add(dimension1.getValores()[index]);
+                }
+                return hasNonZero;
+            }).toArray(Double[][]::new);
+
+        filteredCols.removeIf(col -> {
+            int index = Arrays.asList(dimension2.getValores()).indexOf(col);
+            return Arrays.stream(filteredValues).allMatch(row -> row[index] == 0.0);
+        });
+
+        // Adjust filteredValues based on filteredCols
+        Double[][] finalValues = Arrays.stream(filteredValues)
+            .map(row -> Arrays.stream(row)
+                .filter(value -> !filteredCols.contains(0.0))
+                .toArray(Double[]::new))
+            .toArray(Double[][]::new);
+
         // Muestra en consola
-        printTablaConsola(dimension1.getValores(), dimension2.getValores(), valores);
+        printTablaConsola(filteredRows.toArray(new String[0]), filteredCols.toArray(new String[0]), finalValues);
     }
 
     /**
@@ -175,5 +212,4 @@ public class Proyeccion {
         }
         System.out.println('\n');
     }
-
 }

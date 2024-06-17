@@ -2,7 +2,6 @@ package olapcube.configuration;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import olapcube.readers.CSVReader;
 import olapcube.readers.DatasetReader;
 

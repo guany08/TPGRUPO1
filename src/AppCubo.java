@@ -1,3 +1,6 @@
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import olapcube.Proyeccion;
 import olapcube.configuration.ConfigCubo;
 import olapcube.configuration.ConfigCuboFactory;
@@ -19,7 +22,7 @@ public class AppCubo {
                 0, // FK Productos
                 1, // FK POS
                 2, // FK Fechas
-                new Integer[] { 3, 4, 5, 6 } // Columnas de hechos de ventas
+                new Integer[] { 3, 4, 5, 6 } // Columnas de hechos de ventas, changed to int[]
         );
 
         Cubo cubo = Cubo.crearFromConfig(config);
@@ -37,53 +40,28 @@ public class AppCubo {
         proyeccion.seleccionarMedida("suma");
         proyeccion.print("POS", "Fechas");
 
-        // Drill Down por Fechas
-
-        Cubo cubo2 = cubo.drilldown("Fechas");
-
-        // Proyecciones
-        Proyeccion proyeccion2 = cubo2.proyectar();
-        System.out.println(("PROYECCION 2D DESPUES DEL DRILL DOWN POR FECHAS"));
-        // Mostrar Dimensiones POS vs Fechas (hecho: costo)
-        proyeccion2.seleccionarHecho("costo");
-        proyeccion2.seleccionarMedida("suma");
-        proyeccion2.print("POS", "Fechas");
-
-        // Rollup por Fechas
-
-        Cubo cubo3 = cubo2.rollup("Fechas");
-
-        // Proyecciones
-        Proyeccion proyeccion3 = cubo3.proyectar();
-        System.out.println(("PROYECCION 2D DESPUES DEL ROLL UP POR FECHAS"));
-        // Mostrar Dimensiones POS vs Fechas (hecho: costo)
-        proyeccion3.seleccionarHecho("costo");
-        proyeccion3.seleccionarMedida("suma");
-        proyeccion3.print("POS", "Fechas");
-
         // Slice!
-
-        Cubo cuboslice = cubo3.slice("Fechas", "2019");
+        Cubo cuboslice = cubo.slice("Fechas", "2019");
 
         Proyeccion proyeccionslice = cuboslice.proyectar();
         System.out.println(("PROYECCION 2D DESPUES DEL SLICE POR FECHAS 2019"));
-        // Mostrar Dimensiones POS vs Productos (hecho: costo) ACA MUESTRA LO MISMO QUE EL CUBO ENTERO
         proyeccionslice.seleccionarHecho("costo");
         proyeccionslice.seleccionarMedida("suma");
+        proyeccionslice.print("POS");
         proyeccionslice.print("POS", "Productos");
 
-        // Dice! NO SUMA BIEN LOS VALORES EN 1D MUESTRA UN VALOR y EN 2D LA SUMA NO ES IGUAL AL VALOR De 1D
+        // Dice!
+        Map<String, Set<String>> condiciones = new HashMap<>();
+        condiciones.put("POS", Set.of("Canada", "France"));
+        condiciones.put("Fechas", Set.of("2018", "2019"));
 
-        Cubo cubodice = cubo2.dice("POS", new String[]{"Canada","France"}, "Fechas", new String[]{"2018","2019"});
+        Cubo cubodice = cubo.dice(condiciones);
 
-        Proyeccion proyeccionsdice = cubodice.proyectar();
-
-        System.out.println(("PROYECCION 2D DESPUES DICE POR PAIS 'CANADA, FRANCE' Y FECHAS '2018, 2019'"));
-        // Mostrar Dimensiones POS vs Fechas (hecho: valor total)
-        proyeccionsdice.seleccionarHecho("valor_total");
-        proyeccionsdice.seleccionarMedida("suma");
-        proyeccionsdice.print("POS");
-        proyeccionsdice.print("POS", "Fechas");
-
+        Proyeccion proyecciondice = cubodice.proyectar();
+        System.out.println(("PROYECCION 2D DESPUES DEL DICE POR PAÍSES FRANCIA, CANADA Y FECHAS 2018, 2019"));
+        proyecciondice.seleccionarHecho("costo");
+        proyecciondice.seleccionarMedida("suma");
+        proyecciondice.print("POS");
+        proyecciondice.print("POS", "Productos");
     }
 }

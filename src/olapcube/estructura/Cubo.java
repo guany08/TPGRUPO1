@@ -1,83 +1,144 @@
 package olapcube.estructura;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import olapcube.Proyeccion;
 import olapcube.configuration.ConfigCubo;
 import olapcube.configuration.ConfigDimension;
 import olapcube.excepciones.DimensionNotFoundException;
 import olapcube.excepciones.MedidaNotFoundException;
-import olapcube.metricas.Count;
-import olapcube.metricas.Maximo;
-import olapcube.metricas.Media;
-import olapcube.metricas.Medida;
-import olapcube.metricas.Minimo;
-import olapcube.metricas.Suma;
+import olapcube.metricas.*;
 
-/**
- * Representa un cubo OLAP.
- */
 public class Cubo {
-    private Map<String, Dimension> dimensiones; // Mapeo de nombres de dimensión al objeto de la dimensión
-    private Map<String, Medida> medidas; // Mapeo de nombres de medida al objeto de la medida
-    private List<Celda> celdas; // Lista de celdas del cubo
-    private List<String> nombresHechos; // Nombres de los hechos (columnas con valores del dataset de hechos)
+    private Map<String, Dimension> dimensiones;
+    private Map<String, Medida> medidas;
+    private List<Celda> celdas;
+    private List<String> nombresHechos;
     private ConfigCubo config;
 
     private Cubo(ConfigCubo config) {
         this.config = config;
-        dimensiones = new HashMap<>();
-        celdas = new ArrayList<>();
-        nombresHechos = new ArrayList<>();
-
-        medidas = new HashMap<>();
-        medidas.put("count", new Count());
-        medidas.put("suma", new Suma());
-        medidas.put("media", new Media());
-        medidas.put("maximo", new Maximo());
-        medidas.put("minimo", new Minimo());
+        this.dimensiones = new HashMap<>();
+        this.celdas = new ArrayList<>();
+        this.nombresHechos = new ArrayList<>();
+        inicializarMedidas();
     }
 
-    /**
-     * Método constructor que permite crear un cubo a partir de una configuración
-     * 
-     * @param config Configuración del cubo
-     * @return Cubo
-     */
     public static Cubo crearFromConfig(ConfigCubo config) {
         Cubo cubo = new Cubo(config);
+        cubo.inicializarDimensiones(config);
+        cubo.inicializarHechos(config);
+        return cubo;
+    }
 
-        // Creacion de dimensiones
+    private void inicializarMedidas() {
+        this.medidas = Map.of(
+                "suma", new Suma(),
+                "count", new Count(),
+                "media", new Media(),
+                "maximo", new Maximo(),
+                "minimo", new Minimo());
+    }
+
+    private void inicializarDimensiones(ConfigCubo config) {
         for (ConfigDimension configDimension : config.getDimensiones()) {
-            cubo.agregarDimension(Dimension.crear(configDimension));
+            agregarDimension(Dimension.crear(configDimension));
         }
+    }
 
-        // Creacion de hechos
-        cubo.nombresHechos = List.of(config.getHechos().getNombresHechos());
-
+    private void inicializarHechos(ConfigCubo config) {
+        this.nombresHechos = List.of(config.getHechos().getNombresHechos());
         int indiceCelda = 0;
         for (String[] datos : config.getHechos().getDatasetReader().read()) {
-            Celda celda = new Celda();
-            for (String hecho : cubo.nombresHechos) {
-                int columnaHecho = config.getHechos().getColumnaHecho(hecho);
-                celda.agregarHecho(hecho, Double.parseDouble(datos[columnaHecho]));
-            }
-            cubo.agregarCelda(celda);
-
-            // Agrega la celda a las dimensiones
-            for (Dimension dimension : cubo.dimensiones.values()) {
-                int columnaFkHechos = dimension.getColumnaFkHechos();
-                int fk = Integer.parseInt(datos[columnaFkHechos]);
-                dimension.agregarHecho(fk, indiceCelda);
-            }
-
+            Celda celda = crearCelda(datos);
+            agregarCelda(celda);
+            asociarCeldaConDimensiones(datos, indiceCelda);
             indiceCelda++;
         }
+    }
 
+    private Celda crearCelda(String[] datos) {
+        Celda celda = new Celda();
+        for (String hecho : nombresHechos) {
+            int columnaHecho = config.getHechos().getColumnaHecho(hecho);
+            celda.agregarHecho(hecho, Double.parseDouble(datos[columnaHecho]));
+        }
+        return celda;
+    }
+
+    private void asociarCeldaConDimensiones(String[] datos, int indiceCelda) {
+        for (Dimension dimension : dimensiones.values()) {
+            int columnaFkHechos = dimension.getColumnaFkHechos();
+            int fk = Integer.parseInt(datos[columnaFkHechos]);
+            dimension.agregarHecho(fk, indiceCelda);
+        }
+    }
+
+    private void copiarDimensiones(Cubo cubo) {
+        for (Dimension dimension : dimensiones.values()) {
+            cubo.agregarDimension(dimension.copiar());
+        }
+    }
+
+    private Set<Integer> filtrarCeldas(String nombreDimension, String valor) {
+        Dimension dimension = getDimension(nombreDimension);
+        return dimension.getIndicesCeldas(valor);
+    }
+
+    private Set<Integer> filtrarCeldas(Map<String, Set<String>> condiciones) {
+        Set<Integer> filteredIndices = null;
+        for (Map.Entry<String, Set<String>> condicion : condiciones.entrySet()) {
+            Set<Integer> dimensionFilteredIndices = obtenerIndicesFiltradosPorDimension(condicion.getKey(),
+                    condicion.getValue());
+            if (filteredIndices == null) {
+                filteredIndices = new HashSet<>(dimensionFilteredIndices);
+            } else {
+                filteredIndices.retainAll(dimensionFilteredIndices);
+            }
+        }
+        return filteredIndices != null ? filteredIndices : new HashSet<>();
+    }
+
+    private Set<Integer> obtenerIndicesFiltradosPorDimension(String dimensionNombre, Set<String> valores) {
+        Dimension dimension = getDimension(dimensionNombre);
+        Set<Integer> dimensionFilteredIndices = new HashSet<>();
+        for (String valor : valores) {
+            dimensionFilteredIndices.addAll(dimension.getIndicesCeldas(valor));
+        }
+        return dimensionFilteredIndices;
+    }
+
+    private void agregarCeldasFiltradas(Cubo cubo, Set<Integer> filteredCellIndices) {
+        Map<Integer, Integer> oldToNewIndexMap = new HashMap<>();
+        int newIndex = 0;
+        for (Integer oldIndex : filteredCellIndices) {
+            cubo.celdas.add(this.celdas.get(oldIndex));
+            oldToNewIndexMap.put(oldIndex, newIndex);
+            newIndex++;
+        }
+        actualizarDimensiones(cubo, oldToNewIndexMap);
+    }
+
+    private void actualizarDimensiones(Cubo cubo, Map<Integer, Integer> oldToNewIndexMap) {
+        for (Dimension dim : cubo.dimensiones.values()) {
+            dim.actualizarIndices(oldToNewIndexMap);
+        }
+    }
+
+    public Cubo slice(String nombreDimension, String valor) {
+        Cubo cubo = new Cubo(this.config);
+        copiarDimensiones(cubo);
+        Set<Integer> filteredCellIndices = filtrarCeldas(nombreDimension, valor);
+        agregarCeldasFiltradas(cubo, filteredCellIndices);
+        cubo.nombresHechos = new ArrayList<>(this.nombresHechos);
+        return cubo;
+    }
+
+    public Cubo dice(Map<String, Set<String>> condiciones) {
+        Cubo cubo = new Cubo(this.config);
+        copiarDimensiones(cubo);
+        Set<Integer> filteredCellIndices = filtrarCeldas(condiciones);
+        agregarCeldasFiltradas(cubo, filteredCellIndices);
+        cubo.nombresHechos = new ArrayList<>(this.nombresHechos);
         return cubo;
     }
 
@@ -107,108 +168,23 @@ public class Cubo {
         return dimensiones.get(nombre);
     }
 
-    public void agregarDimension(Dimension dim1) {
-        dimensiones.put(dim1.getNombre(), dim1);
+    public void agregarDimension(Dimension dimension) {
+        dimensiones.put(dimension.getNombre(), dimension);
     }
 
     public void agregarCelda(Celda celda) {
-        // TODO: Validar que la celda tenga los mismos hechos que las celdas anteriores
-        // TODO: Validar que la celda tenga la misma cantidad de hechos que los hechos
-        // del cubo
-        // TODO: Validar que la celda tenga la misma cantidad de valores para cada hecho
         celdas.add(celda);
     }
 
-    public Cubo rollup(String nombreDimension) {
-        // Clonar la configuración actual
-        ConfigCubo nuevaConfig = config;
-
-        // Reducir la granularidad de la dimensión seleccionada
-        for (ConfigDimension dimensionConfig : nuevaConfig.getDimensiones()) {
-            if (dimensionConfig.getNombre().equals(nombreDimension)) {
-                if (dimensionConfig.getColumnaValor() == getDimension(nombreDimension).length()) {
-                    break;
-                } else {
-                    dimensionConfig.setColumnaValor(dimensionConfig.getColumnaValor() + 1); 
-                    break;
-                }
-            }
-        }
-
-        // Crear un nuevo cubo con la configuración modificada
-        return Cubo.crearFromConfig(nuevaConfig);
+    public Celda getCelda(Dimension dimension, String valor) {
+        return Celda.agrupar(celdasFromIndices(dimension.getIndicesCeldas(valor)));
     }
 
-    public Cubo drilldown(String nombreDimension) {
-        // Clonar la configuración actual
-        ConfigCubo nuevaConfig = config;
-
-        // Aumentar la granularidad de la dimensión seleccionada
-        for (ConfigDimension dimensionConfig : nuevaConfig.getDimensiones()) {
-            if (dimensionConfig.getNombre().equals(nombreDimension)) {
-                if (dimensionConfig.getColumnaValor() == 1) {
-                    break;
-                } else {
-                    dimensionConfig.setColumnaValor(dimensionConfig.getColumnaValor() - 1);
-                    break;
-                }
-            }
-        }
-
-        // Crear un nuevo cubo con la configuración modificada
-        return Cubo.crearFromConfig(nuevaConfig);
+    public Celda getCelda(Dimension dim1, String valor1, Dimension dim2, String valor2) {
+        Set<Integer> indicesComunes = celdasComunes(dim1.getIndicesCeldas(valor1), dim2.getIndicesCeldas(valor2));
+        return Celda.agrupar(celdasFromIndices(indicesComunes));
     }
 
-    public Cubo slice(String nombreDimension, String valor) {
-        // Crear un nuevo cubo con la configuración modificada
-        Cubo cubo = Cubo.crearFromConfig(config);
-
-        // Recorrer las dimensiones de Cubo, si la dimension de cubo = nombre dimension
-        if (!cubo.dimensiones.containsKey(nombreDimension)) {
-            throw new DimensionNotFoundException("La dimensión " + nombreDimension + " no existe.");
-        }        
-        cubo.dimensiones.get(nombreDimension).filtrar(valor);
-
-        return cubo;
-
-    }
-
-    public Cubo dice(String nombreDimension, String[] valores) {
-        // Crear un nuevo cubo con la configuración modificada
-        Cubo cubo = Cubo.crearFromConfig(config);
-        cubo.dimensiones.get(nombreDimension).filtrar(valores);
-        return cubo;
-    }
-
-    public Cubo dice(String nombreDimension1, String[] valores1, String nombreDimension2, String[] valores2) {
-        // Crear un nuevo cubo con la configuración modificada
-        Cubo cubo = Cubo.crearFromConfig(config);
-        cubo.dimensiones.get(nombreDimension1).filtrar(valores1);
-        cubo.dimensiones.get(nombreDimension2).filtrar(valores2);
-        return cubo;
-    }
-
-    public Cubo dice(String nombreDimension1, String[] valores1, String nombreDimension2, String[] valores2, String nombreDimension3, String[] valores3) {
-        // Crear un nuevo cubo con la configuración modificada
-        Cubo cubo = Cubo.crearFromConfig(config);
-        cubo.dimensiones.get(nombreDimension1).filtrar(valores1);
-        cubo.dimensiones.get(nombreDimension2).filtrar(valores2);
-        cubo.dimensiones.get(nombreDimension3).filtrar(valores3);
-        return cubo;
-    }
-
-    @Override
-    public String toString() {
-        return "Cubo [celdas=" + celdas.size() + ", dimensiones=" + dimensiones.keySet() + ", medidas=" + medidas.size()
-                + "]";
-    }
-
-    /**
-     * Obtiene las celdas a partir de un conjunto de indices
-     * 
-     * @param indices Conjunto de indices
-     * @return Lista de celdas
-     */
     private List<Celda> celdasFromIndices(Set<Integer> indices) {
         List<Celda> celdas = new ArrayList<>();
         for (Integer indice : indices) {
@@ -217,46 +193,16 @@ public class Cubo {
         return celdas;
     }
 
-    /**
-     * Obtiene una celda a partir de una dimensión y un valor, reduciendo las dos
-     * dimensiones restantes.
-     * 
-     * @param dimension La dimensión a la que pertenece el valor
-     * @param valor     El valor de la dimensión a buscar
-     * @return Celda que agrupa todas las celdas que contienen el valor en esa
-     *         dimensión
-     */
-    public Celda getCelda(Dimension dimension, String valor) {
-        return Celda.agrupar(celdasFromIndices(dimension.getIndicesCeldas(valor)));
-    }
-
-    /**
-     * Obtiene una celda a partir de dos dimensiones y dos valores, reduciendo la
-     * dimensión restante.
-     * 
-     * @param dim1   La primera dimensión
-     * @param valor1 El valor de la primera dimensión
-     * @param dim2   La segunda dimensión
-     * @param valor2 El valor de la segunda dimensión
-     * @return Celda que agrupa todas las celdas que contienen los valores en esas
-     *         dos dimensiones
-     */
-    public Celda getCelda(Dimension dim1, String valor1, Dimension dim2, String valor2) {
-        Set<Integer> indicesComunes = celdasComunes(dim1.getIndicesCeldas(valor1), dim2.getIndicesCeldas(valor2));
-        return Celda.agrupar(celdasFromIndices(indicesComunes));
-    }
-
-    /**
-     * Obtiene el conjunto de índices que existen en ambos conjuntos (intersección)
-     * 
-     * @param set1 El primer conjunto de índices
-     * @param set2 El segundo conjunto de índices
-     * @return Conjunto de índices que representa la intersección de ambos conjuntos
-     */
     private static Set<Integer> celdasComunes(Set<Integer> set1, Set<Integer> set2) {
         Set<Integer> nuevo = new HashSet<>(set1);
         nuevo.retainAll(set2);
         return nuevo;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Cubo [celdas=%d, dimensiones=%s, medidas=%d]", celdas.size(), dimensiones.keySet(),
+                medidas.size());
     }
 
     public Proyeccion proyectar() {

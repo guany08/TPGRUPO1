@@ -21,8 +21,12 @@ public class Media extends Medida {
             suma += valor;
             count += 1;
         }
-
-        media = suma / count;
+        if (suma > 0){
+            media = suma / count;
+        }
+        if (suma == 0){
+            media = 0;
+        }
         
         return media;
     }

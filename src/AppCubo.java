@@ -35,7 +35,7 @@ public class AppCubo {
 
         // Proyección 2D antes del Drill Down
         System.out.println("PROYECCION 2D");
-        proyeccion.seleccionarHecho("costo");
+        proyeccion.seleccionarHecho("valor_total");
         proyeccion.seleccionarMedida("suma");
         proyeccion.print("POS", "Fechas");
 
@@ -58,10 +58,11 @@ public class AppCubo {
         // Slice por Fechas
         Cubo cuboSlice = cuboDrillDownPOS.slice("Fechas", "2019");
         Proyeccion proyeccionSlice = cuboSlice.proyectar();
-        System.out.println("PROYECCION 2D DESPUES DEL SLICE POR FECHAS 2019");
+        System.out.println("PROYECCION 1D DESPUES DEL SLICE POR FECHAS 2019");
         proyeccionSlice.seleccionarHecho("costo");
         proyeccionSlice.seleccionarMedida("suma");
         proyeccionSlice.print("POS");
+        System.out.println("PROYECCION 2D DESPUES DEL SLICE POR FECHAS 2019");
         proyeccionSlice.print("POS", "Productos");
 
         // Dice por POS y Fechas
@@ -71,11 +72,13 @@ public class AppCubo {
 
         Cubo cuboDice = cuboSlice.dice(condiciones);
         Proyeccion proyeccionDice = cuboDice.proyectar();
-        System.out.println("PROYECCION 2D DESPUES DEL DICE POR PAÍSES FRANCIA, CANADA Y FECHAS 2018, 2019");
+        System.out.println("PROYECCION 1D DESPUES DEL DICE POR PAÍSES FRANCIA, CANADA Y FECHAS 2018, 2019");
         proyeccionDice.seleccionarHecho("costo");
         proyeccionDice.seleccionarMedida("suma");
         proyeccionDice.print("POS");
+        System.out.println("PROYECCION 2D DESPUES DEL DICE POR PAÍSES FRANCIA, CANADA Y FECHAS 2018, 2019");
         proyeccionDice.print("Productos", "POS");
+        System.out.println("CAMBIO DE EJES");
         proyeccionDice.print("POS", "Productos");
     }
 }

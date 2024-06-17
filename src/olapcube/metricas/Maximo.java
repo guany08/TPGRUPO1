@@ -19,6 +19,9 @@ public class Maximo extends Medida {
                 maximo = valor;
             }
         }
+        if (maximo == Double.MIN_VALUE){
+            maximo = 0;
+        }
         
         return maximo;
     }
